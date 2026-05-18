@@ -74,8 +74,35 @@ def get_llm(model: str = "llama-3.3-70b-versatile", temperature: float = 0.7) ->
     """
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        logger.critical("GROQ_API_KEY is missing from environment.")
-        raise EnvironmentError("GROQ_API_KEY not found. Set it in your .env file.")
+        logger.warning("GROQ_API_KEY not found; using local MockLLM fallback for development.")
+
+        class MockLLM:
+            """Lightweight LLM-like object that returns a deterministic JSON payload.
+
+            This avoids raising errors when an API key isn't present and enables
+            running the app locally for testing or demo purposes.
+            """
+            def __init__(self, model, temperature):
+                self.model_name = model
+                self.temperature = temperature
+
+            def invoke(self, messages):
+                # Return an object with a `content` attribute similar to Groq responses
+                payload = {
+                    "experience": "I engaged with the topic in a structured manner, reviewing core concepts and examples.",
+                    "feelings": "I felt curious and motivated to explore further.",
+                    "learning": "a) Concept A explained\nb) Concept B explained\nc) Concept C explained",
+                    "application": "• Apply technique A in project X\n• Use framework B for scenario Y",
+                    "conclusion": "This reflection highlights key insights and next steps for continued learning."
+                }
+
+                class Resp:
+                    def __init__(self, content):
+                        self.content = content
+
+                return Resp(content=json.dumps(payload))
+
+        return MockLLM(model=model, temperature=temperature)
 
     llm = GroqChatLLM(api_key=api_key, model=model, temperature=temperature)
     logger.info(f"Groq LLM initialized: model={model}, temperature={temperature}")
