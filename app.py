@@ -4,6 +4,7 @@ from pathlib import Path
 from flask import Flask, render_template, request, send_file
 
 from main import generate_reflective_journal
+import traceback
 
 
 app = Flask(__name__)
@@ -36,9 +37,12 @@ def generate():
             }
         )
     except Exception as exc:
+        tb = traceback.format_exc()
+        # Return the full traceback in the template during debugging so we can
+        # diagnose runtime errors on the deployed service. This is temporary.
         return render_template(
             "index.html",
-            error=str(exc),
+            error=tb,
             form_data=request.form,
         ), 500
 
