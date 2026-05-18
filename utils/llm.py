@@ -7,6 +7,7 @@ version conflicts between langchain-core, langchain-groq, litellm, and openai.
 """
 
 import os
+import json
 from typing import Any, List, Optional
 from groq import Groq
 from langchain_core.language_models.chat_models import BaseChatModel
