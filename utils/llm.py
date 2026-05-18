@@ -101,7 +101,9 @@ def get_llm(model: str = "llama-3.3-70b-versatile", temperature: float = 0.7) ->
                     def __init__(self, content):
                         self.content = content
 
-                return Resp(content=json.dumps(payload))
+                # Local import to avoid any module-level import issues on deployed workers
+                import json as _json
+                return Resp(content=_json.dumps(payload))
 
         return MockLLM(model=model, temperature=temperature)
 
